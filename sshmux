@@ -11,6 +11,10 @@ read_tmux_session_name() {
     key="$1"
     
     case $key in
+        -c|--command)
+        export T_CMD="$2"
+        shift # past argument
+        ;;
         -p|--port)
         export T_PORT="$2"
         shift # past argument
@@ -43,6 +47,7 @@ read_tmux_session_name() {
 TMUX_LS=""
 T_ARG=""
 T_PORT=""
+T_CMD=""
 SSHMUX_VERBOSE=""
 SSHMUX_ARGS=""
 TMUX_PATH=""
@@ -61,7 +66,7 @@ fi
 RETRY_IN=1
 INIT_TIME=`date +%s`
 LAST_FAIL_TIME=$INIT_TIME
-while ! ssh $SSHMUX_ARGS -p $T_PORT -o ConnectTimeout=0 -o ServerAliveInterval=5 -o ServerAliveCountmax=2 -t "export PATH=\$PATH:$TMUX_PATH; tmux -2 attach -t $T_ARG || tmux -2 new -s $T_ARG" 2>/tmp/.sshmux_log
+while ! ssh $SSHMUX_ARGS -p $T_PORT -o ConnectTimeout=0 -o ServerAliveInterval=5 -o ServerAliveCountmax=2 -t "export PATH=\$PATH:$TMUX_PATH; tmux -2 attach -t $T_ARG || tmux -2 new -s $T_ARG $T_CMD" 2>/tmp/.sshmux_log
 do
     CURRENT_TIME=`date +%s`
     if [ $CURRENT_TIME -lt $(($INIT_TIME + 10)) ]; then
